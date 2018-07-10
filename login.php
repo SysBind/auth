@@ -18,9 +18,6 @@ require_once("../../config.php");
 
 global $CFG, $PAGE, $OUTPUT;
 
-//HTTPS is required in this page when $CFG->loginhttps enabled
-$PAGE->https_required();
-
 // get wantsurl from session and pass to the samlUrl
 $samlUrl = "index.php";
 if (isset($SESSION->wantsurl)) {
