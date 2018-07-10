@@ -1,11 +1,25 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 function get_moodle_courses($config) {
     $moodle_courses = array();
-    foreach(get_courses() as $course) {
-        if(isset($config->moodlecoursefieldid) && $config->moodlecoursefieldid == 'idnumber') {
+    foreach (get_courses() as $course) {
+        if (isset($config->moodlecoursefieldid) && $config->moodlecoursefieldid == 'idnumber') {
             $course_identify = $course->idnumber;
-        }
-        else {
+        } else {
             $course_identify = $course->shortname;
         }
         $moodle_courses[] = $course_identify;
@@ -19,13 +33,13 @@ function get_course_mapping(&$DB, &$err) {
     $fields = 'course_mapping_id, saml_course_id, saml_course_period , lms_course_id';
     $rs = $DB->get_records_select('course_mapping', '', null, '', $fields, 0, 0);
 
-    if ($rs === false){
+    if ($rs === false) {
         $err['course_mapping_db'][] = get_string("auth_saml_error_executing_course_mapping_query", "auth_saml");
     } else {
 
-        //creating the courses mapping
-        foreach ($rs as $tuple){
-            $tuple = array_change_key_case((array)$tuple,CASE_LOWER);
+        // Creating the courses mapping.
+        foreach ($rs as $tuple) {
+            $tuple = array_change_key_case((array)$tuple, CASE_LOWER);
             $course_mapping[$tuple['lms_course_id']] = array(
                 'course_mapping_id' => $tuple['course_mapping_id'],
                 'saml_course_id' => $tuple['saml_course_id'],
@@ -41,44 +55,45 @@ function get_course_mapping(&$DB, &$err) {
 function get_course_mapping_for_sync(&$err, $config) {
 
     $course_mapping = array();
-    if($config->supportcourses == 'external') {
-        require_once ("DBNewConnection.php"); 
-        $DB_mapping = DBNewConnection($config->externalcoursemappingdsn);
+    if ($config->supportcourses == 'external') {
+        require_once("dbnewconnection.php");
+        $DB_mapping = dbnewconnection($config->externalcoursemappingdsn);
         $rs = false;
-        if($DB_mapping) {
+        if ($DB_mapping) {
             $DB_mapping->SetFetchMode(ADODB_FETCH_ASSOC);
             $rs = $DB_mapping->Execute($config->externalcoursemappingsql);
-            if($rs !==false) {
+            if ($rs !== false) {
                 $res_array = $rs->GetAll();
-            }            
+            }
             $DB_mapping->Disconnect();
         }
-    }
-    else {
+    } else {
         global $DB;
             $fields = 'course_mapping_id, saml_course_id, saml_course_period , lms_course_id';
             $rs = $DB->get_records_select('course_mapping', '', null, '', $fields, 0, 0);
-            if($rs !==false) {
+            if ($rs !== false) {
                 $res_array = $rs;
             }
     }
-    if ($rs === false){
+    if ($rs === false) {
         $err['course_mapping_db'][] = get_string("auth_saml_error_executing_course_mapping_query", "auth_saml");
     } else {
-        //creating the courses mapping
+        // Creating the courses mapping
         foreach ($res_array as $tuple) {
-            $tuple = array_change_key_case((array)$tuple,CASE_LOWER);
-            if(empty($tuple['saml_course_id']) || empty($tuple['saml_course_period']) || empty($tuple['lms_course_id']))  {
-                $err['role_mapping_db'][] = "<p>" . get_string("auth_saml_error_attribute_course_mapping", "auth_saml") . "</p><p>saml_course_id:" . $tuple['saml_course_id'] . " saml_course_period: " . $tuple['saml_course_period'] . " lms_course_id:" . $tuple['lms_course_id'] . "</p>";
+            $tuple = array_change_key_case((array)$tuple, CASE_LOWER);
+            if (empty($tuple['saml_course_id']) || empty($tuple['saml_course_period']) || empty($tuple['lms_course_id'])) {
+                $err['role_mapping_db'][] = "<p>" . get_string("auth_saml_error_attribute_course_mapping", "auth_saml")
+                    . "</p><p>saml_course_id:" . $tuple['saml_course_id'] . " saml_course_period: " . $tuple['saml_course_period']
+                    . " lms_course_id:" . $tuple['lms_course_id'] . "</p>";
+            } else {
+                if (isset($course_mapping[$tuple['saml_course_id']][$tuple['saml_course_period']])) {
+                    $err['course_mapping_db'][] = get_string('auth_saml_duplicated_saml_data', "auth_saml")
+                        . ' saml_course_id:' . $tuple['saml_course_id'] . ' saml_course_period:'
+                        . $tuple['saml_course_period'];
+                } else {
+            $course_mapping[$tuple['saml_course_id']][$tuple['saml_course_period']] = $tuple['lms_course_id'];
+                }
             }
-            else {
-                if(isset($course_mapping[$tuple['saml_course_id']][$tuple['saml_course_period']])) {
-                    $err['course_mapping_db'][] = get_string('auth_saml_duplicated_saml_data', "auth_saml").' saml_course_id:'.$tuple['saml_course_id'].' saml_course_period:'.$tuple['saml_course_period'];
-                }
-                else {
-            $course_mapping[$tuple['saml_course_id']][$tuple['saml_course_period']] = $tuple['lms_course_id']; 
-                }
-            }		
         }
 	    unset($res_array);
 	    unset($rs);
@@ -86,14 +101,13 @@ function get_course_mapping_for_sync(&$err, $config) {
     return $course_mapping;
 }
 
+function print_course_mapping_options ($course_mapping, $config, $err) {
 
-function print_course_mapping_options($course_mapping, $config, $err) {
-
-    if(isset($err['course_mapping_db'])) {
+    if (isset($err['course_mapping_db'])) {
         foreach ($err['course_maping_db'] as $value) {
            echo '<tr><td colspan="4" style="color: red;text-align:center">';
-           echo $value;  
-           echo '</td></tr>';         
+           echo $value;
+           echo '</td></tr>';
         }
     }
 
@@ -104,7 +118,7 @@ function print_course_mapping_options($course_mapping, $config, $err) {
         }
         if (!empty($err['course_mapping']['lms'])) {
             echo get_string("auth_saml_duplicated_lms_data", "auth_saml") . implode(', ', $err['course_mapping']['lms']);
-        }	
+        }
         echo '</td></tr>';
     }
     if (array_key_exists('missed_course_mapping', $err)) {
@@ -112,7 +126,6 @@ function print_course_mapping_options($course_mapping, $config, $err) {
         echo get_string("auth_saml_missed_data", "auth_saml") . implode(', ', array_unique($err['missed_course_mapping']));
         echo '</td></tr>';
     }
-
 
     if (empty($course_mapping)) {
         echo '<p style="color:grey;font-size:90%;">';
@@ -147,7 +160,8 @@ function print_course_mapping_options($course_mapping, $config, $err) {
             echo('<input type="hidden" name="update_courses_id[]" value="' . $course_mapping_id . '">');
             echo '<select name="course_'. $course_mapping_id .'[]" >';
             foreach ($moodle_courses as $mcourse2) {
-                echo '<option value="'. $mcourse2 .'" '.((!$read_from_db_only && $course_param[0] == $mcourse2) || ($read_from_db_only && $mcourse2 == $mcourse) ? 'selected="selected"' : '') .' >'.$mcourse2.'</option>';
+                echo '<option value="' . $mcourse2 . '" ' . ((!$read_from_db_only && $course_param[0] == $mcourse2)
+                    || ($read_from_db_only && $mcourse2 == $mcourse) ? 'selected="selected"' : '') .' >'.$mcourse2.'</option>';
             }
             echo '</select></td>';
             $course_name = ($read_from_db_only ? $saml_course_id : $course_param[1]);
@@ -164,20 +178,25 @@ function print_course_mapping_options($course_mapping, $config, $err) {
     if ($read_from_db_only) {
 	    while ($i <= $new_courses_total) {
 
-            $new_course_param = optional_param_array('new_course_' . $i, array(), PARAM_ALPHANUMEXT);
+                $new_course_param = optional_param_array('new_course_' . $i, array(), PARAM_ALPHANUMEXT);
+            if (!empty($new_course_param)) {
 
-		    echo '<tr '.((empty($new_course_param[1]) && empty($new_course_param[2]))? 'style="display:none;"' : ((isset($err['course_mapping']['lms']) && in_array($new_course_param[0], $err['course_mapping']['lms'])) 
-            || (isset($err['course_mapping']['saml']) && in_array($new_course_param[1].'_'.$new_course_param[2], $err['course_mapping']['saml'])) ? 'style="background:red;"' : '')) .' >';
+		    echo '<tr ' . ((empty($new_course_param[1]) && empty($new_course_param[2])) ? 'style="display:none;"' : ((isset($err['course_mapping']['lms'])
+		        && in_array($new_course_param[0], $err['course_mapping']['lms']))
+                || (isset($err['course_mapping']['saml']) &&
+                    in_array($new_course_param[1].'_'.$new_course_param[2],
+                        $err['course_mapping']['saml'])) ? 'style="background:red;"' : '')) .' >';
 	            echo '<td colspan="2" style="padding-left: 38px;"><select id="newcourse_select_'.$i.'" name="new_course' . $i . '[]">';
 	            foreach ($moodle_courses as $mcourse) {
-	                $is_selected = $new_course_param[0] === $mcourse; 
-	                echo '<option value="'. $mcourse .'" ' . ($is_selected ? 'selected="selected"' : '') . ' >'.$mcourse.'</option>';
+                        $is_selected = $new_course_param[0] === $mcourse;
+                        echo '<option value="'. $mcourse .'" ' . ($is_selected ? 'selected="selected"' : '') . ' >'.$mcourse.'</option>';
 	            }
 	            echo '</select>';
 	            echo '<td><input id="newcourse_saml_id_'.$i.'" type="text" name="new_course' . $i . '[]" value="' . $new_course_param[1] . '" /></td>';
-	            echo '<td><input id="newcourse_saml_period_'.$i.'" type="text" name="new_course' . $i . '[]" value="'. $new_course_param[2] . '" /></td>'; 
+	            echo '<td><input id="newcourse_saml_period_'.$i.'" type="text" name="new_course' . $i . '[]" value="'. $new_course_param[2] . '" /></td>';
 	            echo '</tr>';
-		    $i++;
+            }
+	    $i++;
 	    }
     }
 
@@ -188,6 +207,6 @@ function print_course_mapping_options($course_mapping, $config, $err) {
     echo '</select>';
     echo '<input id="new_courses_total" type="hidden" name="new_courses_total" value="' . $i . '" /></td>';
     echo '<td><input id="newcourse_saml_id_'.$i.'" type="text" name="new_course' . $i . '[]" value="" /></td>';
-    echo '<td><input id="newcourse_saml_period_'.$i.'" type="text" name="new_course' . $i . '[]" value="" />'; 
+    echo '<td><input id="newcourse_saml_period_'.$i.'" type="text" name="new_course' . $i . '[]" value="" />';
     echo '<input type="button" name="new" value="+" onclick="addNewField(\'newcourses\',\'new_course\',\'course\')" /></td></tr>';
 }

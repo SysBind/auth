@@ -1,12 +1,30 @@
-<script src="../auth/saml/resources/moodle_saml.js" type="text/javascript"></script>
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-<link rel="stylesheet" type="text/css" href="../auth/saml/resources/ui.theme.css" />
-<link rel="stylesheet" type="text/css" href="../auth/saml/resources/ui.core.css" />
-<link rel="stylesheet" type="text/css" href="../auth/saml/resources/ui.tabs.css" />
-<link rel="stylesheet" type="text/css" href="../auth/saml/resources/moodle_saml.css" />
+require_once("../../config.php");
+?>
+<script src="../saml/resources/moodle_saml.js" type="text/javascript"></script>
 
-<script type="text/javascript" src="../auth/saml/resources/jquery-1.3.2.min.js"></script>
-<script type="text/javascript" src="../auth/saml/resources/jquery-ui-1.7.2.custom.min.js"></script>
+<link rel="stylesheet" type="text/css" href="../saml/resources/ui.theme.css" />
+<link rel="stylesheet" type="text/css" href="../saml/resources/ui.core.css" />
+<link rel="stylesheet" type="text/css" href="../saml/resources/ui.tabs.css" />
+<link rel="stylesheet" type="text/css" href="../saml/resources/moodle_saml.css" />
+
+<script type="text/javascript" src="../saml/resources/jquery-1.3.2.min.js"></script>
+<script type="text/javascript" src="../saml/resources/jquery-ui-1.7.2.custom.min.js"></script>
 
 
 <?php
@@ -24,101 +42,98 @@
  *
  * 2008-10  Created
  * 2009-07  Added new configuration options
-**/
+ **/
+require_once("../../config.php");
+global $CFG, $OUTPUT;
 
-    global $CFG, $OUTPUT;
+require_once("courses.php");
+require_once("roles.php");
 
-    require_once("courses.php");
-    require_once("roles.php");
-
-    // Get saml paramters stored in the saml_config.php
-    if(file_exists($CFG->dataroot.'/saml_config.php')) {
+// Get saml paramters stored in the saml_config.php.
+if (file_exists($CFG->dataroot.'/saml_config.php')) {
         $contentfile = file_get_contents($CFG->dataroot.'/saml_config.php');
-        $saml_param = json_decode($contentfile);
-    } else if (file_exists('saml_config.php')) {
+        $samlparam = json_decode($contentfile);
+} else if (file_exists('saml_config.php')) {
         $contentfile = file_get_contents('saml_config.php');
-        $saml_param = json_decode($contentfile);
+        $samlparam = json_decode($contentfile);
+} else {
+        $samlparam = new stdClass();
+}
+
+// Set to defaults if undefined.
+if (!isset ($samlparam->samllib)) {
+    if (isset ($config->samllib)) {
+        $samlparam->samllib = $config->samllib;
     } else {
-        $saml_param = new stdClass();
+        $samlparam->samllib = '/var/www/sp/simplesamlphp/lib';
     }
+}
+if (!isset ($samlparam->sp_source)) {
+    if (isset ($config->sp_source)) {
+        $samlparam->sp_source = $config->sp_source;
+    } else {
+        $samlparam->sp_source = 'saml';
+    }
+}
+if (!isset ($samlparam->dosinglelogout)) {
+    if (isset ($config->dosinglelogout)) {
+        $samlparam->dosinglelogout = $config->dosinglelogout;
+    } else {
+        $samlparam->dosinglelogout = false;
+    }
+}
+if (!isset ($config->username)) {
+    $config->username = 'eduPersonPrincipalName';
+}
+if (!isset ($config->notshowusername)) {
+    $config->notshowusername = 'none';
+}
+if (!isset ($config->supportcourses)) {
+    $config->supportcourses = 'nosupport';
+}
+if (!isset ($config->syncusersfrom)) {
+    $config->syncusersfrom = '';
+}
+if (!isset ($config->samlcourses)) {
+    $config->samlcourses = 'schacUserStatus';
+}
+if (!isset ($config->samllogoimage)) {
+    $config->samllogoimage = 'logo.gif';
+}
+if (!isset ($config->samllogoinfo)) {
+    $config->samllogoinfo = 'SAML login';
+}
+if (!isset ($config->autologin)) {
+    $config->autologin = false;
+}
+if (!isset ($config->samllogfile)) {
+    $config->samllogfile = '';
+}
+if (!isset ($config->samlhookfile)) {
+    $config->samlhookfile = $CFG->dirroot . '/auth/saml/custom_hook.php';
+}
+if (!isset ($config->moodlecoursefieldid)) {
+    $config->moodlecoursefieldid = 'shortname';
+}
+if (!isset ($config->ignoreinactivecourses)) {
+    $config->ignoreinactivecourses = true;
+}
+if (!isset ($config->externalcoursemappingdsn)) {
+    $config->externalcoursemappingdsn = '';
+}
+if (!isset ($config->externalrolemappingdsn)) {
+    $config->externalrolemappingdsn = '';
+}
+if (!isset ($config->externalcoursemappingsql)) {
+    $config->externalcoursemappingsql = '';
+}
+if (!isset ($config->externalrolemappingsql)) {
+    $config->externalrolemappingsql = '';
+}
 
-    // Set to defaults if undefined
-    if (!isset ($saml_param->samllib)) {
-        if(isset ($config->samllib)) {
-            $saml_param->samllib = $config->samllib;
-        }
-        else {
-            $saml_param->samllib = '/var/www/sp/simplesamlphp/lib';
-        }
-    }
-    if (!isset ($saml_param->sp_source)) {
-        if(isset ($config->sp_source)) {
-            $saml_param->sp_source = $config->sp_source;
-        }
-        else {
-            $saml_param->sp_source = 'saml';
-        }
-    }
-    if (!isset ($saml_param->dosinglelogout)) {
-        if(isset ($config->dosinglelogout)) {
-            $saml_param->dosinglelogout = $config->dosinglelogout;
-        }
-        else {
-            $saml_param->dosinglelogout = false;
-        }
-    }
-    if (!isset ($config->username)) {
-        $config->username = 'eduPersonPrincipalName';
-    }
-    if (!isset ($config->notshowusername)) {
-        $config->notshowusername = 'none';
-    }
-    if (!isset ($config->supportcourses)) {
-        $config->supportcourses = 'nosupport';
-    }
-    if (!isset ($config->syncusersfrom)) {
-        $config->syncusersfrom = '';
-    }
-    if (!isset ($config->samlcourses)) {
-        $config->samlcourses = 'schacUserStatus';
-    }
-    if (!isset ($config->samllogoimage)) {
-        $config->samllogoimage = 'logo.gif';
-    }
-    if (!isset ($config->samllogoinfo)) {
-        $config->samllogoinfo = 'SAML login';
-    }
-    if (!isset ($config->autologin)) {
-        $config->autologin = false;
-    }
-    if (!isset ($config->samllogfile)) {
-        $config->samllogfile = '';
-    }
-    if (!isset ($config->samlhookfile)) {
-        $config->samlhookfile = $CFG->dirroot . '/auth/saml/custom_hook.php';
-    }
-    if (!isset ($config->moodlecoursefieldid)) {
-        $config->moodlecoursefieldid = 'shortname';
-    }
-    if (!isset ($config->ignoreinactivecourses)) {
-        $config->ignoreinactivecourses = true;
-    }
-    if (!isset ($config->externalcoursemappingdsn)) { 
-        $config->externalcoursemappingdsn = ''; 
-    }
-    if (!isset ($config->externalrolemappingdsn)) { 
-        $config->externalrolemappingdsn = ''; 
-    }
-    if (!isset ($config->externalcoursemappingsql)) { 
-        $config->externalcoursemappingsql = ''; 
-    }
-    if (!isset ($config->externalrolemappingsql)) { 
-        $config->externalrolemappingsql = ''; 
-    }
-
-    if (!isset ($config->disablejit)) {
-        $config->disablejit = false;
-    }
+if (!isset ($config->disablejit)) {
+    $config->disablejit = false;
+}
 
 ?>
 
@@ -138,10 +153,9 @@ if (isset($err) && !empty($err)) {
     <tr>
         <td class="center" colspan="4" style="background-color: red; color: white;text-">
     ';
-    if(isset($err['reset'])) {
+    if (isset($err['reset'])) {
         echo $err['reset'];
-    }
-    else {
+    } else {
         print_string("auth_saml_form_error", "auth_saml");
     }
     echo '
@@ -154,7 +168,7 @@ if (isset($err) && !empty($err)) {
 <tr valign="top" class="required">
     <td class="right"><?php print_string("auth_saml_samllib", "auth_saml"); ?>:</td>
     <td>
-        <input name="samllib" type="text" size="30" value="<?php echo $saml_param->samllib; ?>" />
+        <input name="samllib" type="text" size="30" value="<?php echo $samlparam->samllib; ?>" />
         <?php
         if (isset($err['samllib'])) {
             echo $OUTPUT->error_text($err['samllib']);
@@ -167,7 +181,7 @@ if (isset($err) && !empty($err)) {
 <tr valign="top" class="required">
     <td class="right"><?php print_string("auth_saml_sp_source", "auth_saml"); ?>:</td>
     <td>
-        <input name="sp_source" type="text" size="10" value="<?php echo $saml_param->sp_source; ?>" />
+        <input name="sp_source" type="text" size="10" value="<?php echo $samlparam->sp_source; ?>" />
         <?php
         if (isset($err['sp_source'])) {
             echo $OUTPUT->error_text($err['sp_source']);
@@ -188,7 +202,9 @@ if (isset($err) && !empty($err)) {
 <tr valign="top">
     <td class="right"><?php print_string("auth_saml_dosinglelogout", "auth_saml"); ?>:</td>
     <td>
-        <input name="dosinglelogout" type="checkbox" <?php if($saml_param->dosinglelogout) echo 'checked="CHECKED"'; ?> />
+        <input name="dosinglelogout" type="checkbox" <?php if ($samlparam->dosinglelogout) {
+            echo 'checked="CHECKED"';
+} ?> />
     </td>
     <td><?php print_string("auth_saml_dosinglelogout_description", "auth_saml"); ?></td>
 </tr>
@@ -212,7 +228,9 @@ if (isset($err) && !empty($err)) {
 <tr valign="top">
     <td class="right"><?php print_string("auth_saml_autologin", "auth_saml"); ?>:</td>
     <td>
-        <input name="autologin" type="checkbox" <?php if($config->autologin) echo 'checked="CHECKED"'; ?> />
+        <input name="autologin" type="checkbox" <?php if ($config->autologin) {
+            echo 'checked="CHECKED"';
+}?> />
     </td>
     <td><?php print_string("auth_saml_autologin_description", "auth_saml"); ?></td>
 </tr>
@@ -251,9 +269,15 @@ if (isset($err) && !empty($err)) {
     document.getElementById('ignoreinactivecourses_tr').style.display = (this.value == 'nosupport') ? 'none' : '';
 
     $('#tabdiv').tabs('select', 0);}" >
-            <option name="nosupport" value="nosupport" <?php if($config->supportcourses == 'nosupport') echo 'selected="selected"'; ?> >No Support</option>
-            <option name="internal" value="internal" <?php if($config->supportcourses == 'internal') echo 'selected="selected"'; ?> >Internal</option>
-            <option name="external" value="external" <?php if($config->supportcourses == 'external') echo 'selected="selected"'; ?> >External</option>
+            <option name="nosupport" value="nosupport" <?php if ($config->supportcourses == 'nosupport') {
+                echo 'selected="selected"';
+}?> >No Support</option>
+            <option name="internal" value="internal" <?php if ($config->supportcourses == 'internal') {
+                echo 'selected="selected"';
+}?> >Internal</option>
+            <option name="external" value="external" <?php if ($config->supportcourses == 'external') {
+                echo 'selected="selected"';
+}?> >External</option>
         </select>
     </td>
     <td><?php print_string("auth_saml_supportcourses_description", "auth_saml"); ?></td>
@@ -262,7 +286,9 @@ if (isset($err) && !empty($err)) {
 <tr valign="top">
     <td class="right"><?php print_string("auth_saml_disablejit", "auth_saml"); ?>:</td>
     <td>
-        <input name="disablejit" type="checkbox" <?php if($config->disablejit) echo 'checked="CHECKED"'; ?> />
+        <input name="disablejit" type="checkbox" <?php if ($config->disablejit) {
+            echo 'checked="CHECKED"';
+}?> />
     </td>
     <td><?php print_string("auth_saml_disablejit_description", "auth_saml"); ?></td>
 </tr>
@@ -273,19 +299,19 @@ if (isset($err) && !empty($err)) {
         <select name="syncusersfrom">
         <option name="none" value="">Disabled</option>
         <?php
-            foreach (get_enabled_auth_plugins() as $name) {
+        foreach (get_enabled_auth_plugins() as $name) {
                 $plugin = get_auth_plugin($name);
-                if (method_exists($plugin, 'sync_users')) {
-                    print '<option name="' . $name . '" value ="' . $name . '" ' . (($config->syncusersfrom == $name) ? 'selected="selected"' : '') . '>' . $name . '</option>';
-                }
+            if (method_exists($plugin, 'sync_users')) {
+                print '<option name="' . $name . '" value ="' . $name . '" ' . (($config->syncusersfrom == $name) ? 'selected="selected"' : '') . '>' . $name . '</option>';
             }
+        }
         ?>
         </select>
     </td>
     <td><?php print_string("auth_saml_syncusersfrom_description", "auth_saml"); ?></td>
 </tr>
 
-<tr valign="top" class="required" id="samlcourses_tr" <?php echo ($config->supportcourses == 'nosupport'? 'style="display:none;"' : '') ?> >
+<tr valign="top" class="required" id="samlcourses_tr" <?php echo ($config->supportcourses == 'nosupport' ? 'style="display:none;"' : '') ?> >
     <td class="right"><?php print_string("auth_saml_courses", "auth_saml"); ?>:</td>
     <td>
        <input name="samlcourses" type="text" size="30" value="<?php echo $config->samlcourses; ?>" />
@@ -297,8 +323,12 @@ if (isset($err) && !empty($err)) {
     <td class="right"><?php print_string("auth_saml_course_field_id", "auth_saml"); ?>:</td>
     <td>
        <select name="moodlecoursefieldid">
-            <option name="shortname" value="shortname" <?php if($config->moodlecoursefieldid == 'shortname') echo 'selected="selected"'; ?> >Short Name</option>
-            <option name="idnumber" value="idnumber" <?php if($config->moodlecoursefieldid == 'idnumber') echo 'selected="selected"'; ?> >Number ID</option>
+            <option name="shortname" value="shortname" <?php if ($config->moodlecoursefieldid == 'shortname') {
+                echo 'selected="selected"';
+}?> >Short Name</option>
+            <option name="idnumber" value="idnumber" <?php if ($config->moodlecoursefieldid == 'idnumber') {
+                echo 'selected="selected"';
+}?> >Number ID</option>
        </select>
     </td>
     <td><?php print_string("auth_saml_course_field_id_description", "auth_saml"); ?></td>
@@ -307,7 +337,9 @@ if (isset($err) && !empty($err)) {
 <tr valign="top" id="ignoreinactivecourses_tr" <?php echo ($config->supportcourses == 'nosupport' ? 'style="display:none;"' : '') ; ?> >
     <td class="right"><?php print_string("auth_saml_ignoreinactivecourses", "auth_saml"); ?>:</td>
     <td>
-        <input name="ignoreinactivecourses" type="checkbox" <?php if($config->ignoreinactivecourses) echo 'checked="checked"'; ?>/>
+        <input name="ignoreinactivecourses" type="checkbox" <?php if ($config->ignoreinactivecourses) {
+            echo 'checked="checked"';
+}?>/>
     </td>
     <td><?php print_string("auth_saml_ignoreinactivecourses_description", "auth_saml"); ?></td>
 </tr>
@@ -327,29 +359,36 @@ $(document).ready(function() {
 <div id="tabdiv">
 <ul>
     <li><a href="#datamapping">User Data Mapping</a></li>
-    <li id="coursemapping_li" <?php if($config->supportcourses != 'internal') echo 'style="display:none;"'; ?> ><a <?php echo (isset($err['course_mapping'])  || isset($err['missed_course_mapping']) || isset($err['course_mapping_db']) ? 'style="color:red;"' : ''); ?> href="#coursemapping">Course Mapping</a></li>
-    <li id="rolemapping_li" <?php if($config->supportcourses  != 'internal') echo 'style="display:none;"' ?> ><a <?php echo (isset($err['role_mapping'])  || isset($err['missed_role_mapping']) || isset($err['role_mapping_db']) ? 'style="color:red;"' : ''); ?> href="#rolemapping">Role Mapping</a></li>
-    <li id="externalmapping_li" <?php if($config->supportcourses  != 'external') echo 'style="display:none;"'; ?> ><a <?php echo ($config->supportcourses  == 'external' && isset($err['samlexternal']) ? 'style="color:red;"' : ''); ?> href="#externalmapping">External Mapping Info</a></li>
+    <li id="coursemapping_li" <?php if ($config->supportcourses != 'internal') {
+        echo 'style="display:none;"';
+}?> ><a <?php echo (isset($err['course_mapping'])  || isset($err['missed_course_mapping'])
+        || isset($err['course_mapping_db']) ? 'style="color:red;"' : ''); ?> href="#coursemapping">Course Mapping</a></li>
+    <li id="rolemapping_li" <?php if ($config->supportcourses != 'internal') {
+        echo 'style="display:none;"';
+}?> ><a <?php echo (isset($err['role_mapping'])  || isset($err['missed_role_mapping'])
+            || isset($err['role_mapping_db']) ? 'style="color:red;"' : ''); ?> href="#rolemapping">Role Mapping</a></li>
+    <li id="externalmapping_li" <?php if ($config->supportcourses != 'external') {
+        echo 'style="display:none;"';
+}?> ><a <?php echo ($config->supportcourses == 'external' && isset($err['samlexternal']) ? 'style="color:red;"' : ''); ?> href="#externalmapping">External Mapping Info</a></li>
 </ul>
 
 <div id="datamapping">
     <table class="center">
     <?php
-    print_auth_lock_options('saml', $user_fields, '<!-- empty help -->', true, false);
+    print_auth_lock_options('saml', $user_fields, '<!-- empty help -->', true, false, $this->get_custom_user_profile_fields());
     ?>
     </table>
 </div>
 
 <div id="coursemapping">
 
-<?php 
+<?php
 
-if(isset($err['course_mapping_db']) && in_array("error_creating_course_mapping", $err['course_mapping_db'])) {
+if (isset($err['course_mapping_db']) && in_array("error_creating_course_mapping", $err['course_mapping_db'])) {
     echo '<span class="error">';
     print_string("auth_saml_error_creating_course_mapping", "auth_saml");
     echo '</span>';
-}
-else {
+} else {
     echo '<table id="newcourses" class="center">';
         print_course_mapping_options($course_mapping, $config, $err);
     echo '
@@ -362,18 +401,17 @@ else {
 
 <div id="rolemapping">
 <?php
-if(isset($err['role_mapping_db']) && in_array("error_creating_role_mapping", $err['role_mapping_db'])) {
+if (isset($err['role_mapping_db']) && in_array("error_creating_role_mapping", $err['role_mapping_db'])) {
     echo '<span class="error">';
     print_string("auth_saml_error_creating_role_mapping", "auth_saml");
     echo '</span>';
-}
-else {
+} else {
     echo '<table id="newroles" class="center">';
           print_role_mapping_options($role_mapping, $config, $err);
     echo '</table>
           <div style="padding-top: 10px; padding-left: 44%;"><input type="submit" name="deleteroles" value="Delete selected" /></div>';
 
-    if($config->supportcourses == 'internal') {
+    if ($config->supportcourses == 'internal') {
         echo  '<div align="left">
                 <input type="submit" name="initialize_roles" value="';
                 print_string('auth_saml_initialize_roles', 'auth_saml');
@@ -401,29 +439,29 @@ else {
                <input name="externalcoursemappingdsn" type="text" size="55" value="<?php echo $config->externalcoursemappingdsn; ?>" />
             </td>
         </tr>
-        <tr class="required">    
+        <tr class="required">
             <td class="right" valign="top"><?php print_string("auth_saml_course_mapping_sql", "auth_saml"); ?>:</td>
             <td>
-               <textarea name="externalcoursemappingsql" type="text" size="55" rows="3" cols="55"><?php echo $config->externalcoursemappingsql; ?></textarea>            
+               <textarea name="externalcoursemappingsql" type="text" size="55" rows="3" cols="55"><?php echo $config->externalcoursemappingsql; ?></textarea>
             </td>
         </tr>
         <tr valign="top">
             <td colspan="2"></td>
         </tr>
-        <tr class="required">    
+        <tr class="required">
             <td class="right"><?php print_string("auth_saml_role_mapping_dsn", "auth_saml"); ?>:</td>
             <td>
                <input name="externalrolemappingdsn" type="text" size="55" value="<?php echo $config->externalrolemappingdsn; ?>" />
             </td>
         </tr>
-        <tr class="required">    
+        <tr class="required">
             <td class="right" valign="top"><?php print_string("auth_saml_role_mapping_sql", "auth_saml"); ?>:</td>
             <td>
                <textarea name="externalrolemappingsql" type="text" size="55" rows="3" cols="55"><?php echo htmlspecialchars($config->externalrolemappingsql); ?></textarea>
             </td>
         </tr>
     </table>
-    <p>DSN and SQL examples:</p> 
+    <p>DSN and SQL examples:</p>
 <?php
     echo "<p>" . htmlspecialchars(get_string("auth_saml_mapping_dsn_examples", "auth_saml")) . "</p>";
     echo "<p>" . htmlspecialchars(get_string("auth_saml_mapping_sql_examples", "auth_saml")) . "</p>";

@@ -2,41 +2,37 @@
 
 function auth_saml_error($err, $urltogo=false, $logfile='', $showerror=false) {
     global $CFG, $PAGE, $OUTPUT;
-    
-    if((isset($CFG->debugdisplay) && !$CFG->debugdisplay) || $showerror) {
+
+    if ((isset($CFG->debugdisplay) && !$CFG->debugdisplay) || $showerror) {
         $debug = true;
-    }
-    else {
+    } else {
         $debug = false;
     }
-    
-    if($urltogo!=false) {
+
+    if ($urltogo != false) {
         $site = get_site();
-        if($site === false || !isset($site->fullname)) {
+        if ($site === false || !isset($site->fullname)) {
             $site_name = '';
-        }
-        else {
+        } else {
             $site_name = $site->fullname;
         }
         $PAGE->set_title($site_name .':Error SAML Login');
 
         echo $OUTPUT->header();
 
-
         echo '<div style="margin:20px;font-weight: bold; color: red;">';
     }
-    if(is_array($err)) {
-        foreach($err as $key => $messages) {
-            if(!is_array($messages)) {
-                if($urltogo!=false && ($debug || $key == 'course_enrollment')) {
+    if (is_array($err)) {
+        foreach ($err as $key => $messages) {
+            if (!is_array($messages)) {
+                if ($urltogo != false && ($debug || $key == 'course_enrollment')) {
                     echo $messages;
                 }
                 $msg = 'Moodle SAML module: '.$key.': '.$messages;
                 auth_saml_log_error($msg, $logfile);
-            }
-            else {
-                foreach($messages as $message) {
-                    if($urltogo!=false && ($debug || $key == 'course_enrollment')) {
+            } else {
+                foreach ($messages as $message) {
+                    if ($urltogo != false && ($debug || $key == 'course_enrollment')) {
                         echo $message.'<br>';
                     }
                     $msg = 'Moodle SAML module: '.$key.': '.$message;
@@ -45,18 +41,17 @@ function auth_saml_error($err, $urltogo=false, $logfile='', $showerror=false) {
             }
             echo '<br>';
         }
-    }
-    else {
-        if($urltogo!=false) {
+    } else {
+        if ($urltogo != false) {
             echo $err;
         }
         $msg = 'Moodle SAML module: login: '.$err;
         auth_saml_log_error($msg, $logfile);
     }
-    if($urltogo!=false) {
+    if ($urltogo != false) {
         echo '</div>';
         echo $OUTPUT->continue_button($urltogo);
-        if($debug && !$showerror) {
+        if ($debug && !$showerror) {
             print_string("auth_saml_disable_debugdisplay", "auth_saml");
         }
         echo $OUTPUT->footer();
@@ -70,11 +65,10 @@ function auth_saml_log_error($msg, $logfile) {
     // 3 - message  is appended to the file destination
     $destination = '';
     $error_log_type = 0;
-    if(isset($logfile) && !empty($logfile)) {
+    if (isset($logfile) && !empty($logfile)) {
         if (substr($logfile, 0) == '/') {
             $destination = $logfile;
-        }
-        else {
+        } else {
             $destination = $CFG->dataroot . '/' . $logfile;
         }
         $error_log_type = 3;

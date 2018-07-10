@@ -1,4 +1,19 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /*
 SAML Authentication Plugin Custom Hook
 
@@ -35,49 +50,43 @@ are they for.
 function saml_hook_attribute_filter(&$saml_attributes) {
 
     // Nos quedamos sólamente con el DNI dentro del schacPersonalUniqueID
-    if(isset($saml_attributes['schacPersonalUniqueID'])) {
-        foreach($saml_attributes['schacPersonalUniqueID'] as $key => $value) {
+    if (isset($saml_attributes['schacPersonalUniqueID'])) {
+        foreach ($saml_attributes['schacPersonalUniqueID'] as $key => $value) {
             $data = array();
-            if(preg_match('/urn:mace:terena.org:schac:personalUniqueID:es:(.*):(.*)/', $value, $data)) {
+            if (preg_match('/urn:mace:terena.org:schac:personalUniqueID:es:(.*):(.*)/', $value, $data)) {
                 $saml_attributes['schacPersonalUniqueID'][$key] = $data[2];
                 //DNI sin letra
                 //$saml_attributes['schacPersonalUniqueID'][$key] = substr($value[2], 0, 8);
-            }
-            else {
+            } else {
                 unset($saml_attributes['schacPersonalUniqueID'][$key]);
             }
         }
     }
 
     // Pasamos el irisMailMainAddress como mail si no existe
-    if(!isset($saml_attributes['mail'])) {
-        if(isset($saml_attributes['irisMailMainAddress'])) {
+    if (!isset($saml_attributes['mail'])) {
+        if (isset($saml_attributes['irisMailMainAddress'])) {
             $saml_attributes['mail'] = $saml_attributes['irisMailMainAddress'];
         }
     }
 
-
     // Pasamos el uid como eduPersonPrincipalName o como eduPersonTargetedID
-    if(!isset($saml_attributes['eduPersonPrincipalName'])) {
-        if(isset($saml_attributes['uid'])) {
+    if (!isset($saml_attributes['eduPersonPrincipalName'])) {
+        if (isset($saml_attributes['uid'])) {
             $saml_attributes['eduPersonPrincipalName'] = $saml_attributes['uid'];
-        }
-        else if (isset($saml_attributes['eduPersonTargetedID'])) {
+        } else if (isset($saml_attributes['eduPersonTargetedID'])) {
             $saml_attributes['eduPersonPrincipalName'] = $saml_attributes['eduPersonTargetedID'];
-        }
-        else if (isset($saml_attributes['mail'])) {
+        } else if (isset($saml_attributes['mail'])) {
             $saml_attributes['eduPersonPrincipalName'] = $saml_attributes['mail'];
         }
     }
 
-
     // Pasamos el uid como eduPersonPrincipalName
 
-    if(!isset($saml_attributes['eduPersonPrincipalName'])) {
-        if(isset($saml_attributes['uid'])) {
+    if (!isset($saml_attributes['eduPersonPrincipalName'])) {
+        if (isset($saml_attributes['uid'])) {
             $saml_attributes['eduPersonPrincipalName'] = $saml_attributes['uid'];
-        }
-        else if (isset($saml_attributes['mail'])) {
+        } else if (isset($saml_attributes['mail'])) {
             $saml_attributes['eduPersonPrincipalName'] = $saml_attributes['mail'];
         }
     }
@@ -136,11 +145,11 @@ function saml_hook_post_user_created($user, $saml_attributes = array()) {
  name: saml_hook_get_course_info
  arguments:
    - $course: string that contains info about the course
- 
+
  return array with the following indexes:
-        0 - match      matched string   
+        0 - match      matched string
         1 - country    country info
-        2 - domain     domain info 
+        2 - domain     domain info
         3 - course_id  the course id to be mapped with moodle course
         4 - period     period of the course
         5 - role       role to be mappend with moodle role
@@ -153,7 +162,7 @@ function saml_hook_post_user_created($user, $saml_attributes = array()) {
   required, so if your Identity Provider don't retrieve country or domain info, return
   empy values for them Ex. alternative pattern
   Info: 'courseData:math1:2016-17:student:active'
-  
+
   $regex = '/courseData:(.+):(.+):(.+):(.+):(.+):(.+)/';
   if (preg_match($regex, $course, $matches) {
     $regs = array();

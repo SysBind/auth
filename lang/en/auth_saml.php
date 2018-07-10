@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 $string['auth_saml_loginusing'] = 'Login here using your username and password';
 
@@ -33,8 +47,8 @@ $string['auth_saml_disablejit'] = "Disable Just-in-time provisioning";
 $string['auth_saml_disablejit_description'] = "Check it in order to disable the just-in-time provisioning. When JIT is disabled, account will be not created.";
 
 $string['auth_saml_syncusersfrom'] = 'Synchronize users from module';
-$string['auth_saml_syncusersfrom_description'] = 'Synchronize users into Moodle using another module. The users will be created with auth = \'saml\', even though they are actually synchronized by another module. 
-This allows you to create, update and delete users from for example LDAP, but log them in via SAML. Note that the module you wish to sync from must be enabled, and all sync settings should be controlled from that module, not from SAML. 
+$string['auth_saml_syncusersfrom_description'] = 'Synchronize users into Moodle using another module. The users will be created with auth = \'saml\', even though they are actually synchronized by another module.
+This allows you to create, update and delete users from for example LDAP, but log them in via SAML. Note that the module you wish to sync from must be enabled, and all sync settings should be controlled from that module, not from SAML.
 To run the synchronization, add auth/saml/cli/sync_users.php to your cron.';
 
 $string['auth_saml_courses'] = 'SAML courses mapping';
@@ -64,13 +78,13 @@ $string['auth_saml_not_authorize'] = "{\$a} has no active CAV course. ";
 $string['auth_saml_error_executing'] = "Error executing ";
 
 $string['auth_saml_mapping_dsn_description'] = 'Data Source Name string for connecting to the course/role mapping database.
-(dsn must be an absolute path in case you are using SQLite)'; 
+(dsn must be an absolute path in case you are using SQLite)';
 
-$string['auth_saml_course_mapping_dsn'] = 'Course dsn'; 
-$string['auth_saml_role_mapping_dsn'] = 'Role dsn'; 
+$string['auth_saml_course_mapping_dsn'] = 'Course dsn';
+$string['auth_saml_role_mapping_dsn'] = 'Role dsn';
 
-$string['auth_saml_course_mapping_sql'] = 'Course sql'; 
-$string['auth_saml_role_mapping_sql'] = 'Role sql'; 
+$string['auth_saml_course_mapping_sql'] = 'Course sql';
+$string['auth_saml_role_mapping_sql'] = 'Role sql';
 
 $string['auth_saml_mapping_dsn_examples'] = 'mysql://moodleuser:moodlepass@localhost/saml_course_mapping
 sqlite:/<path-to-db>/mapping.sqlite3
@@ -92,10 +106,10 @@ $string['auth_saml_error_creating_course_mapping'] = 'Error creating course_mapp
 $string['auth_saml_sucess_creating_role_mapping'] = 'Table course_role created in moodle database';
 $string['auth_saml_error_creating_role_mapping'] = 'Error creating role_mapping in moodle database';
 
-$string['auth_saml_error_executing_course_mapping_query'] ='Error executing the course mapping query';
+$string['auth_saml_error_executing_course_mapping_query'] = 'Error executing the course mapping query';
 $string['auth_saml_error_attribute_course_mapping'] = 'Error in attribute names (index) of course table mapping. Check externalcoursemappingsql syntax';
 
-$string['auth_saml_error_executing_role_mapping_query'] ='Error executing the role mapping query';
+$string['auth_saml_error_executing_role_mapping_query'] = 'Error executing the role mapping query';
 $string['auth_saml_error_attribute_role_mapping'] = 'Error in attribute names (index) of role table mapping. Check externalrolemappingsql syntax';
 
 
@@ -124,6 +138,10 @@ $string['auth_saml_samlhookfile'] = 'Hook file path';
 $string['auth_saml_samlhookfile_description'] = 'Set a path if you want to use a hook file that contain your specific functions. The path can either be absolute or relative to your Moodle root directory.';
 $string['auth_saml_errorbadhook'] = "Incorrect SAML plugin hook file: {\$a}";
 
+$string['auth_saml_logouturl'] = "Single Logout URL";
+$string['auth_saml_logouturl_desc'] = 'This is the url the user will be redierect on logout action';
+$string['defaultlogouturl'] = 'https://lgn.edu.gov.il/nidp/jsp/logoutSuccess.jsp?logoutURL=http://edu.gov.il/tech/mbl';
+$string['generalsettings'] = 'General';
 $string['pluginname'] = 'SAML Authentication';
 $string['pluginnotenabled'] = 'Plugin not enabled!';
 $string['syncfromnotenabled'] = 'No external plugin selected. SAML cannot synchronize users on its own.';

@@ -18,10 +18,10 @@
  * SAML user sync script.
  *
  * This script is meant to be called from a cronjob to sync moodle with a
- * selected. Users cannot be synced from SAML, but can be synched from 
+ * selected. Users cannot be synced from SAML, but can be synched from
  * for example an external database or from LDAP. By using this script,
  * user data will be fetched from the external source, but users will
- * be authenticated by SAML. Remember to enable the external module, and 
+ * be authenticated by SAML. Remember to enable the external module, and
  * enter all required settings in that module.
  *
  * Sample cron entry:
@@ -55,7 +55,16 @@ if (!is_enabled_auth('saml')) {
     die;
 }
 
-list($options, $unrecognized) = cli_get_params(array('noupdate'=>false, 'verbose'=>false, 'help'=>false), array('n'=>'noupdate', 'v'=>'verbose', 'h'=>'help'));
+list($options, $unrecognized) = cli_get_params(array(
+    'noupdate' => false,
+    'verbose' => false,
+    'help' => false
+    ),
+    array(
+        'n' => 'noupdate',
+        'v' => 'verbose',
+        'h' => 'help'
+    ));
 
 if ($unrecognized) {
     $unrecognized = implode("\n  ", $unrecognized);
@@ -91,28 +100,28 @@ $do_update = empty($options['noupdate']);
 
 $config = get_config('auth/saml');
 if (!empty($config->syncusersfrom)) {
-	$otherauth = get_auth_plugin($config->syncusersfrom);
-	$otherauth->authtype = 'saml';
+    $otherauth = get_auth_plugin($config->syncusersfrom);
+    $otherauth->authtype = 'saml';
 
-	$method = new ReflectionMethod($otherauth, 'sync_users');
+    $method = new ReflectionMethod($otherauth, 'sync_users');
 
-	switch ($method->getNumberOfParameters()) {
-		case 1:
-			// LDAP takes one arg
-			$otherauth->sync_users($do_update);
-			break;	
-		case 2:
-			// DB takes two
-			if (empty($options['verbose'])) {
-			    $trace = new null_progress_trace();
-			} else {
-			    $trace = new text_progress_trace();
-			}
-			$otherauth->sync_users($trace, $do_update);
-			break;
-		default:
-			error_log('[AUTH SAML] '. get_string('unknownplugin', 'auth_saml') . $config->syncusersfrom);
-	}	
+    switch ($method->getNumberOfParameters()) {
+        case 1:
+            // LDAP takes one arg
+            $otherauth->sync_users($do_update);
+            break;
+        case 2:
+            // DB takes two
+            if (empty($options['verbose'])) {
+                $trace = new null_progress_trace();
+            } else {
+                $trace = new text_progress_trace();
+            }
+            $otherauth->sync_users($trace, $do_update);
+            break;
+        default:
+            error_log('[AUTH SAML] '. get_string('unknownplugin', 'auth_saml') . $config->syncusersfrom);
+    }
 } else {
-	error_log('[AUTH SAML] '. get_string('syncfromnotenabled', 'auth_saml'));
+    error_log('[AUTH SAML] '. get_string('syncfromnotenabled', 'auth_saml'));
 }
