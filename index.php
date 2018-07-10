@@ -84,7 +84,7 @@ try {
     $PAGE->set_url('/auth/saml/index.php');
     $PAGE->set_context(CONTEXT_SYSTEM::instance());
 
-    $pluginconfig = get_config('auth/saml');
+    $pluginconfig = get_config('auth_saml');
     $urltogo = $CFG->wwwroot;
     if ($CFG->wwwroot[strlen($CFG->wwwroot) - 1] != '/') {
         $urltogo .= '/';
@@ -115,7 +115,7 @@ if ($CFG->wwwroot[strlen($CFG->wwwroot) - 1] != '/') {
 
 
 // Get the plugin config for saml
-$pluginconfig = get_config('auth/saml');
+$pluginconfig = get_config('auth_saml');
 
 if (!$valid_saml_session) {
     // Not valid session. Ship user off to Identity Provider
