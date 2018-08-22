@@ -166,7 +166,8 @@ if (!$valid_saml_session) {
         }
         $saml_courses = $saml_attributes[$pluginconfig->samlcourses];
     }
-
+    // disable the course mapping for now
+    /*
     // Obtain the course_mapping. Now $USER->mapped_courses have the mapped courses and $USER->mapped_roles the roles
     if ($pluginconfig->supportcourses != 'nosupport' ) {
         $any_course_active = false;
@@ -177,7 +178,7 @@ if (!$valid_saml_session) {
         $SAML_COURSE_INFO->mapped_roles = $mapped_roles;
         $SAML_COURSE_INFO->mapped_courses = $mapped_courses;
     }
-
+    */
     // Check if user exist.
     $user_exists = $DB->get_record("user", array("username" => $username));
 
