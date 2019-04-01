@@ -17,7 +17,7 @@
 /**
  * @author Erlend Strømsvik - Ny Media AS
  * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
- * @package auth/saml
+ * @package auth_saml
  * @version 1.0
  *
  * Authentication Plugin: SAML based SSO Authentication

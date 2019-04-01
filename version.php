@@ -16,8 +16,8 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version = 2018071000;
+$plugin->version = 2019040200;
 $plugin->requires = 2012062500;
-$plugin->release = '1.00.00';
+$plugin->release = 'auth_saml version of 02-04-2019';
 $plugin->maturity = MATURITY_BETA;
 $plugin->component = 'auth_saml';

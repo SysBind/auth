@@ -32,7 +32,7 @@ require_once("../../config.php");
  * @author Erlend Strømsvik - Ny Media AS
  * @author Piers Harding - made quite a number of changes
  * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
- * @package auth/saml
+ * @package auth_saml
  *
  * Authentication Plugin: SAML based SSO Authentication
  *

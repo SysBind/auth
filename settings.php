@@ -202,6 +202,12 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configtext('auth_saml/samllogfile', get_string('auth_saml_logfile', 'auth_saml'),
         get_string('auth_saml_logfile_description', 'auth_saml') , $samlparam->samllogfile));
 
+    $settings->add(new admin_setting_configcheckbox('auth_saml/allowstudent', get_string('auth_saml_allowstudent', 'auth_saml'), '', true));
+
+    $settings->add(new admin_setting_configtext('auth_saml/studentattribute', get_string('auth_saml_studentattribute',
+            'auth_saml'), get_string('auth_saml_studentattributedesc', 'auth_saml')));
+
+    $settings->add(new admin_setting_configtext('auth_saml/studentredirect', get_string('auth_saml_studentredirect', 'auth_saml'), '', ''));
     // samlhookfile.
     $settings->add(new admin_setting_configtext('auth_saml/samlhookfile', get_string('auth_saml_samlhookfile', 'auth_saml'),
         get_string('auth_saml_samlhookfile_description', 'auth_saml') , $samlparam->samlhookfile));

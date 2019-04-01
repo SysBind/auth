@@ -22,9 +22,8 @@ try {
     $config = get_config('auth_saml');
     require_once("roles.php");
     require_once("courses.php");
-    // disable the course mapping for now
-    //$role_mapping = get_role_mapping_for_sync($err, $config);
-    //$course_mapping = get_course_mapping_for_sync($err, $config);
+    $role_mapping = get_role_mapping_for_sync($err, $config);
+    $course_mapping = get_course_mapping_for_sync($err, $config);
 } catch (Exception $e) {
     print_error('Caught exception while mapping: '.  $e->getMessage(). "\n");
 }

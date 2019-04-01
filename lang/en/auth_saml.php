@@ -14,6 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+$string['auth_saml_allowstudent'] = 'Allow student to login';
+$string['auth_saml_studentattribute'] = 'SAML token for student role ';
+$string['auth_saml_studentattributedesc'] = 'This should be to token from your SAML IDP how recognize if the user is student or no';
+$string['auth_saml_studentredirect'] = 'Redirect not allowd student URL';
 $string['auth_saml_loginusing'] = 'Login here using your username and password';
 
 $string['auth_samltitle']  = 'SAML Authentication';
@@ -140,7 +144,7 @@ $string['auth_saml_errorbadhook'] = "Incorrect SAML plugin hook file: {\$a}";
 
 $string['auth_saml_logouturl'] = "Single Logout URL";
 $string['auth_saml_logouturl_desc'] = 'This is the url the user will be redierect on logout action';
-$string['defaultlogouturl'] = 'https://lgn.edu.gov.il/nidp/jsp/logoutSuccess.jsp?logoutURL=http://edu.gov.il/tech/mbl';
+$string['defaultlogouturl'] = '';
 $string['generalsettings'] = 'General';
 $string['pluginname'] = 'SAML Authentication';
 $string['pluginnotenabled'] = 'Plugin not enabled!';

@@ -155,7 +155,7 @@ function saml_hook_post_user_created($user, $saml_attributes = array()) {
         5 - role       role to be mappend with moodle role
         6 - status     'active' | 'inactive'
 
-  The auth/saml plugin save those data that will be available
+  The auth_saml plugin save those data that will be available
   for the enrol/saml plugin.
 
   Right now only course_id, period, role and status are
